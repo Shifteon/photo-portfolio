@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@portfolio/types": [
+        "packages/types/index.ts"
+      ],
+      "@portfolio/ui": [
+        "packages/ui/index.ts"
+      ],
+      "@portfolio/api": [
+        "packages/api/index.ts"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

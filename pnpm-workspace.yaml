@@ -1,0 +1,5 @@
+packages:
+  # All Next.js apps will live here
+  - 'apps/*'
+  # All shared packages (UI, API clients, Types) will live here
+  - 'packages/*'

@@ -1,0 +1,14 @@
+{
+  "name": "@portfolio/types",
+  "version": "1.0.0",
+  "private": false,
+  "license": "MIT",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "clean": "echo \"Nothing to clean in types\""
+  },
+  "dependencies": {
+    "zod": "^4.1.13"
+  }
+}

@@ -1,0 +1,10 @@
+import UploadForm from "./components/UploadForm/UploadForm";
+import Link from "next/link";
+
+export default function Home() {
+  return (
+    <>
+      <Link href="/photos">Photos</Link>
+    </>
+  );
+}
