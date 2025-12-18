@@ -17,5 +17,11 @@ export const CollectionSchema = z.object({
   photos: PhotoSchema.array().nullable(),
 });
 
+export const CollectionFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  slug: z.string().min(1, "Slug is required"),
+  order: z.number().int(),
+});
+
 export type Collection = z.infer<typeof CollectionSchema>;
 
