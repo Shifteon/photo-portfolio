@@ -20,8 +20,12 @@ export const CollectionSchema = z.object({
 export const CollectionFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
+  coverPhotoId: z.number().optional(),
   order: z.number().int(),
+  photoIds: z.number().array().optional(),
 });
 
 export type Collection = z.infer<typeof CollectionSchema>;
+export type CollectionForm = z.infer<typeof CollectionFormSchema>;
+
 
