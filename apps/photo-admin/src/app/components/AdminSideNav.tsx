@@ -19,13 +19,13 @@ export function AdminSideNav() {
       <NavigationRailItem
         icon={<Image />}
         label="Photos"
-        active={pathname === '/photos'}
+        active={pathname.startsWith('/photos')}
         onClick={() => router.push('/photos')}
       />
       <NavigationRailItem
         icon={<Library />}
         label="Collections"
-        active={pathname === '/collections'}
+        active={pathname.startsWith('/collections')}
         onClick={() => router.push('/collections')}
       />
     </NavigationRail>
