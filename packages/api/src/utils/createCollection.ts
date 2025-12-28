@@ -7,7 +7,7 @@ export const createCollection = async (collection: Collection) => {
     const { data, error } = await supabase.from('collections').insert({
       name: collection.name,
       slug: collection.slug,
-      cover_photo: collection.coverPhoto?.id,
+      cover_photo_id: collection.coverPhoto?.id || null,
       order: collection.order,
     })
 
