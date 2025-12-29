@@ -1,10 +1,11 @@
 'use client';
 
-import { Button, Form } from "@portfolio/ui";
-import { useActionState } from "react";
+import { Button, Form, MasonryGrid, InteractivePhotoGrid, SortableList } from "@portfolio/ui";
+import { useActionState, useState, useMemo } from "react";
 import { createCollection, ActionState } from "../../actions/createCollection";
 import { Photo } from "@portfolio/types";
 import { CollectionPhotoSelector } from "./CollectionPhotoSelector";
+import { PhotoSortableItem } from "./PhotoSortableItem";
 
 const initialState: ActionState = {
   success: false,
@@ -17,45 +18,165 @@ interface CreateCollectionFormProps {
 
 export default function CreateCollectionForm({ photos }: CreateCollectionFormProps) {
   const [state, formAction, isPending] = useActionState(createCollection, initialState);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [coverPhotoId, setCoverPhotoId] = useState<number[]>([]);
+  const [selectedPhotos, setSelectedPhotos] = useState<Photo[]>([]);
+  const [isPreview, setIsPreview] = useState(false);
+
+  // Derive selected IDs for the selector component
+  const selectedPhotoIds = useMemo(() => selectedPhotos.map(p => p.id), [selectedPhotos]);
+
+  const handlePhotoSelection = (newIds: number[]) => {
+    // Find photos that are newly selected
+    const addedIds = newIds.filter(id => !selectedPhotoIds.includes(id));
+    const addedPhotos = addedIds.map(id => photos.find(p => p.id === id)).filter(Boolean) as Photo[];
+
+    // Filter out photos that are no longer selected, preserving order of remaining ones
+    const remainingPhotos = selectedPhotos.filter(p => newIds.includes(p.id));
+
+    // Append new photos to the end
+    setSelectedPhotos([...remainingPhotos, ...addedPhotos]);
+  };
+
+  const handleReorder = (newPhotos: Photo[]) => {
+    setSelectedPhotos(newPhotos);
+  };
+
+  const handleRemovePhoto = (id: number) => {
+    setSelectedPhotos(prev => prev.filter(p => p.id !== id));
+  };
 
   return (
-    <Form action={formAction}>
-      <div className="space-y-4">
-        <Form.Field
-          name="name"
-          label="Name"
-          type="text"
-          error={state.errors?.name?.[0]}
-        />
-        <Form.Field
-          name="slug"
-          label="Slug"
-          type="text"
-          error={state.errors?.slug?.[0]}
-        />
-        <Form.Field
-          name="order"
-          label="Order"
-          type="number"
-          error={state.errors?.order?.[0]}
-        />
+    <div className="w-full">
+      <div className="mb-8 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+          <span className={step === 1 ? "text-primary font-medium" : ""}>Step 1: Details</span>
+          <span>&rarr;</span>
+          <span className={step === 2 ? "text-primary font-medium" : ""}>Step 2: Photos</span>
+        </div>
       </div>
 
-      <div className="border-t pt-4 space-y-2">
-        <CollectionPhotoSelector photos={photos} inputName="coverPhotoId" limit={1} label="Cover Photo" />
-        <CollectionPhotoSelector photos={photos} inputName="photoIds" label="Photos" />
-      </div>
+      <div className="w-full h-full flex flex-col justify-center items-center mx-auto">
+        <Form action={formAction}>
+          {/* Step 1: Details */}
+          <div className={step === 1 ? 'space-y-6 w-full' : 'hidden'}>
+            <div className="space-y-4 w-full">
+              <Form.Field
+                name="name"
+                label="Name"
+                type="text"
+                error={state.errors?.name?.[0]}
+                required
+              />
+              <Form.Field
+                name="slug"
+                label="Slug"
+                type="text"
+                error={state.errors?.slug?.[0]}
+                required
+              />
+              <Form.Field
+                name="order"
+                label="Order"
+                type="number"
+                error={state.errors?.order?.[0]}
+              />
+            </div>
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Creating...' : 'Create Collection'}
-        </Button>
+            <div className="pt-4 w-full">
+              <CollectionPhotoSelector
+                photos={photos}
+                label="Cover Photo"
+                selectedIds={coverPhotoId}
+                onSelectionChange={setCoverPhotoId}
+                limit={1}
+              />
+              {/* Hidden input for cover photo */}
+              {coverPhotoId.map(id => (
+                <input key="cover-photo" type="hidden" name="coverPhotoId" value={id} />
+              ))}
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <Button type="button" onClick={() => setStep(2)}>
+                Next
+              </Button>
+            </div>
+          </div>
+
+          {/* Step 2: Photos */}
+          <div className={step === 2 ? 'space-y-6' : 'hidden'}>
+            <div className="space-y-4">
+              <CollectionPhotoSelector
+                photos={photos}
+                label="Add Photos"
+                selectedIds={selectedPhotoIds}
+                onSelectionChange={handlePhotoSelection}
+              />
+
+              {selectedPhotos.length > 0 && (
+                <div className="mt-4 w-full">
+                  <h3 className="text-sm font-medium text-on-surface mb-2">
+                    Selected Photos ({selectedPhotos.length})
+                  </h3>
+                  <div className="grid grid-cols-[1fr_2fr] gap-4 w-full">
+                    <div>
+                      <SortableList
+                        items={selectedPhotos}
+                        onReorder={handleReorder}
+                        renderItem={(photo, { dragHandleProps, isDragging }) => (
+                          <PhotoSortableItem
+                            photo={photo}
+                            onRemove={handleRemovePhoto}
+                            dragHandleProps={dragHandleProps}
+                            isDragging={isDragging}
+                          />
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <MasonryGrid
+                        photos={selectedPhotos}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Hidden inputs for ordered photos */}
+            {selectedPhotos.map((photo) => (
+              <input key={photo.id} type="hidden" name="photoIds" value={photo.id} />
+            ))}
+
+            {/* <div className="flex items-center gap-2 mt-4 mb-4">
+              <span className="text-sm text-on-surface-variant">Preview Grid</span>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsPreview(!isPreview)}
+              >
+                {isPreview ? 'Hide' : 'Show'}
+              </Button>
+            </div> */}
+
+            <div className="flex justify-between pt-4 border-t border-outline-variant">
+              <Button type="button" variant="secondary" onClick={() => setStep(1)}>
+                Back
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? 'Creating...' : 'Create Collection'}
+              </Button>
+            </div>
+          </div>
+
+          {state.message && (
+            <p className={`mt-4 ${state.success ? 'text-green-600' : 'text-error'}`}>
+              {state.message}
+            </p>
+          )}
+        </Form>
       </div>
-      {state.message && (
-        <p style={{ color: state.success ? 'green' : 'var(--color-error)' }}>
-          {state.message}
-        </p>
-      )}
-    </Form>
+    </div>
   );
 }

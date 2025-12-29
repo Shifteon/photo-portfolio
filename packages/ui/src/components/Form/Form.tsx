@@ -4,7 +4,7 @@ import InputField from './Fields/InputField';
 
 export function Form({ children, ...props }: ComponentProps<typeof BaseForm>) {
   return (
-    <BaseForm className="flex flex-col gap-6 w-full max-w-md" {...props}>
+    <BaseForm className="flex flex-col gap-6 w-full" {...props}>
       {children}
     </BaseForm>
   );

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@portfolio/ui/src/styles/themes.css";
 @source '../../node_modules/@portfolio/ui/**/*.{js,ts,jsx,tsx,mdx}';
+@source '../../src/**/*.{js,ts,jsx,tsx,mdx}';
 
 :root {
   --background: var(--color-surface);

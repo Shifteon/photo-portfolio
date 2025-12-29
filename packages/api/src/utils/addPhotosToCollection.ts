@@ -4,7 +4,11 @@ export const addPhotosToCollection = async (collectionSlug: string, photoIds: nu
   try {
     const supabase = getSupabaseClient();
     const { data, error } = await supabase.from('photo_collections').insert(
-      photoIds.map(photoId => ({ collection_slug: collectionSlug, photo_id: photoId }))
+      photoIds.map((photoId, index) => ({
+        collection_slug: collectionSlug,
+        photo_id: photoId,
+        photo_order: index
+      }))
     ).select();
     return { data, error };
   } catch (error) {

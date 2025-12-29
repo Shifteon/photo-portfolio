@@ -6,20 +6,19 @@ import { useState } from "react";
 
 interface CollectionPhotoSelectorProps {
   photos: Photo[];
-  inputName: string;
   label: string;
-  initialSelectedIds?: number[];
+  selectedIds: number[];
+  onSelectionChange: (ids: number[]) => void;
   limit?: number;
 }
 
 export function CollectionPhotoSelector({
   photos,
-  inputName,
   label,
-  initialSelectedIds = [],
+  selectedIds,
+  onSelectionChange,
   limit = undefined
 }: CollectionPhotoSelectorProps) {
-  const [selectedIds, setSelectedIds] = useState<number[]>(initialSelectedIds);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -46,7 +45,7 @@ export function CollectionPhotoSelector({
                   <InteractivePhotoGrid
                     photos={photos}
                     selectedIds={selectedIds}
-                    onSelectionChange={setSelectedIds}
+                    onSelectionChange={onSelectionChange}
                     limit={limit}
                     targetColumns={4}
                   />
@@ -62,11 +61,6 @@ export function CollectionPhotoSelector({
           </Dialog.Portal>
         </Dialog.Root>
       </div>
-
-      {/* Hidden inputs to submit the selection */}
-      {selectedIds.map((id) => (
-        <Form.Field key={id} type="hidden" name={inputName} value={id} />
-      ))}
     </div>
   );
 }
