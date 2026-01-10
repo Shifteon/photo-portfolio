@@ -9,12 +9,13 @@ export interface InputFieldProps {
   type: InputType;
   label?: string;
   value?: string | number;
+  defaultValue?: string | number;
   description?: string;
   error?: string;
   required?: boolean;
 }
 
-export default function InputField({ label, name, type, value, description, error, required }: InputFieldProps) {
+export default function InputField({ label, name, type, value, defaultValue, description, error, required }: InputFieldProps) {
   if (type === 'hidden') {
     return (
       <Field.Root>
@@ -22,6 +23,7 @@ export default function InputField({ label, name, type, value, description, erro
           type={type}
           name={name}
           value={value}
+          defaultValue={defaultValue}
           required={required}
         />
       </Field.Root>
@@ -35,6 +37,7 @@ export default function InputField({ label, name, type, value, description, erro
         type={type}
         name={name}
         value={value}
+        defaultValue={defaultValue}
         required={required}
         className="w-full bg-transparent border border-outline rounded-[4px] px-4 py-3 text-surface-on placeholder:text-surface-on-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-colors data-[invalid]:border-error data-[invalid]:text-error"
       />

@@ -1,27 +1,41 @@
 'use client';
 
-import { Button, Form, MasonryGrid, InteractivePhotoGrid, SortableList } from "@portfolio/ui";
+import { Button, Form, MasonryGrid, SortableList } from "@portfolio/ui";
 import { useActionState, useState, useMemo } from "react";
-import { createCollection, ActionState } from "../../actions/createCollection";
-import { Photo } from "@portfolio/types";
+import { Photo, Collection } from "@portfolio/types";
 import { CollectionPhotoSelector } from "./CollectionPhotoSelector";
 import { PhotoSortableItem } from "./PhotoSortableItem";
+
+interface ActionState {
+  success: boolean;
+  message?: string;
+  errors?: any;
+  [key: string]: any;
+}
 
 const initialState: ActionState = {
   success: false,
   message: '',
 };
 
-interface CreateCollectionFormProps {
+interface CollectionFormProps {
   photos: Photo[];
+  initialData?: Collection;
+  action: (state: ActionState, payload: FormData) => Promise<ActionState>;
 }
 
-export default function CreateCollectionForm({ photos }: CreateCollectionFormProps) {
-  const [state, formAction, isPending] = useActionState(createCollection, initialState);
+export default function CollectionForm({ photos, initialData, action }: CollectionFormProps) {
+  const [state, formAction, isPending] = useActionState(action, initialState);
   const [step, setStep] = useState<1 | 2>(1);
-  const [coverPhotoId, setCoverPhotoId] = useState<number[]>([]);
-  const [selectedPhotos, setSelectedPhotos] = useState<Photo[]>([]);
-  const [isPreview, setIsPreview] = useState(false);
+
+  // Initialize state from initialData if available
+  const [coverPhotoId, setCoverPhotoId] = useState<number[]>(
+    initialData?.coverPhoto ? [initialData.coverPhoto.id] : []
+  );
+
+  const [selectedPhotos, setSelectedPhotos] = useState<Photo[]>(
+    initialData?.photos || []
+  );
 
   // Derive selected IDs for the selector component
   const selectedPhotoIds = useMemo(() => selectedPhotos.map(p => p.id), [selectedPhotos]);
@@ -65,6 +79,7 @@ export default function CreateCollectionForm({ photos }: CreateCollectionFormPro
                 name="name"
                 label="Name"
                 type="text"
+                defaultValue={initialData?.name}
                 error={state.errors?.name?.[0]}
                 required
               />
@@ -72,6 +87,7 @@ export default function CreateCollectionForm({ photos }: CreateCollectionFormPro
                 name="slug"
                 label="Slug"
                 type="text"
+                defaultValue={initialData?.slug}
                 error={state.errors?.slug?.[0]}
                 required
               />
@@ -79,6 +95,7 @@ export default function CreateCollectionForm({ photos }: CreateCollectionFormPro
                 name="order"
                 label="Order"
                 type="number"
+                defaultValue={initialData?.order}
                 error={state.errors?.order?.[0]}
               />
             </div>
@@ -149,23 +166,12 @@ export default function CreateCollectionForm({ photos }: CreateCollectionFormPro
               <input key={photo.id} type="hidden" name="photoIds" value={photo.id} />
             ))}
 
-            {/* <div className="flex items-center gap-2 mt-4 mb-4">
-              <span className="text-sm text-on-surface-variant">Preview Grid</span>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsPreview(!isPreview)}
-              >
-                {isPreview ? 'Hide' : 'Show'}
-              </Button>
-            </div> */}
-
             <div className="flex justify-between pt-4 border-t border-outline-variant">
               <Button type="button" variant="secondary" onClick={() => setStep(1)}>
                 Back
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Creating...' : 'Create Collection'}
+                {isPending ? (initialData ? 'Updating...' : 'Creating...') : (initialData ? 'Update Collection' : 'Create Collection')}
               </Button>
             </div>
           </div>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Collection } from "@portfolio/types";
 import { Button } from "../Button/Button";

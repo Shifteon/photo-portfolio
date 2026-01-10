@@ -9,12 +9,17 @@ import { z } from 'zod';
 //   photos?: Photo[];
 // }
 
+export const PhotoCollectionDbSchema = z.object({
+  photo_order: z.number(),
+  photo: PhotoDbSchema,
+});
+
 export const CollectionDbSchema = z.object({
   name: z.string(),
   slug: z.string(),
   cover_photo: PhotoDbSchema.nullable(),
   order: z.number(),
-  photos: PhotoDbSchema.array().nullable().optional(),
+  photo_collections: PhotoCollectionDbSchema.array().nullable().optional(),
 });
 
 export const CollectionSchema = z.object({
@@ -25,12 +30,16 @@ export const CollectionSchema = z.object({
   photos: PhotoSchema.array().nullable().optional(),
 });
 
+export const PhotoCollectionTransformer = PhotoCollectionDbSchema.transform((photoCollection) =>
+  PhotoTransformer.parse({ ...photoCollection.photo, order: photoCollection.photo_order }),
+);
+
 export const CollectionTransformer = CollectionDbSchema.transform((collection) => ({
   name: collection.name,
   slug: collection.slug,
   coverPhoto: collection.cover_photo ? PhotoTransformer.parse(collection.cover_photo) : null,
   order: collection.order,
-  photos: collection.photos ? PhotoTransformer.array().parse(collection.photos) : [],
+  photos: collection.photo_collections ? PhotoCollectionTransformer.array().parse(collection.photo_collections) : [],
 }));
 
 export const CollectionFormSchema = z.object({

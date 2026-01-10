@@ -1,12 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getSupabaseClient } from '../utils/getSupabaseClient';
-import { Collection, CollectionSchema } from '@portfolio/types';
+import { Collection, CollectionSchema, CollectionTransformer } from '@portfolio/types';
 
-export default async function getPhotoCollection(req: NextRequest) {
+export default async function getCollection(collectionSlug: string) {
   try {
-    const { searchParams } = req.nextUrl;
-    const collectionSlug = searchParams.get('collectionSlug');
-
     if (!collectionSlug) {
       return NextResponse.json({ error: 'Collection slug is required' }, { status: 400 });
     }
@@ -18,6 +15,7 @@ export default async function getPhotoCollection(req: NextRequest) {
         slug,
         order,
         cover_photo:cover_photo_id (
+          id,
           title,
           storage_path,
           thumbnail_path,
@@ -25,18 +23,22 @@ export default async function getPhotoCollection(req: NextRequest) {
           height,
           aspect_ratio
         ),
-        photos ( 
-          title,
-          storage_path,
-          thumbnail_path,
-          width,
-          height,
-          aspect_ratio
+        photo_collections ( 
+          photo_order,
+          photo:photos (
+            id,
+            title,
+            storage_path,
+            thumbnail_path,
+            width,
+            height,
+            aspect_ratio
+          )
         )
       `)
       .eq('slug', collectionSlug) // Filter by collection slug/ID
       .order('photo_order', { // Assumes a 'photo_order' column exists in the junction table/photos table
-        referencedTable: 'photos', // Specify which table to order
+        referencedTable: 'photo_collections', // Specify which table to order
         ascending: true
       })
       .single();
@@ -50,7 +52,7 @@ export default async function getPhotoCollection(req: NextRequest) {
       return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
     }
 
-    const collection: Collection = CollectionSchema.parse(collectionData);
+    const collection: Collection = CollectionTransformer.parse(collectionData);
 
     return NextResponse.json(collection);
   } catch (error) {

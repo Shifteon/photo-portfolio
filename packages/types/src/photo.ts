@@ -17,7 +17,7 @@ export const PhotoDbSchema = z.object({
   width: z.number(),
   height: z.number(),
   aspect_ratio: z.number(),
-  order: z.number().nullable().optional(),
+  photo_order: z.number().nullable().optional(),
 });
 
 export const PhotoSchema = z.object({
@@ -39,7 +39,7 @@ export const PhotoTransformer = PhotoDbSchema.transform((photo) => ({
   width: photo.width,
   height: photo.height,
   aspectRatio: photo.aspect_ratio,
-  order: photo.order,
+  order: photo.photo_order,
 }));
 
 export const PhotoFormSchema = z.object({
