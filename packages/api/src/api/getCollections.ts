@@ -1,4 +1,4 @@
-import { Collection, CollectionSchema } from "@portfolio/types";
+import { Collection, CollectionSchema, CollectionTransformer } from "@portfolio/types";
 import { getSupabaseClient } from "../utils/getSupabaseClient";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
  * @param req 
  * @returns collectionsData
  */
-export default async function getCollections(req: NextRequest) {
+export default async function getCollections(req?: NextRequest) {
   try {
     const supabase = getSupabaseClient();
     const { data: collectionsData, error } = await supabase.from('collections')
@@ -19,6 +19,7 @@ export default async function getCollections(req: NextRequest) {
           id,
           title,
           storage_path,
+          thumbnail_path,
           width,
           height,
           aspect_ratio
@@ -30,7 +31,7 @@ export default async function getCollections(req: NextRequest) {
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 
-    const collections: Collection[] = collectionsData.map(collection => CollectionSchema.parse(collection));
+    const collections: Collection[] = CollectionTransformer.array().parse(collectionsData);
     return NextResponse.json(collections);
   } catch (error) {
     console.error(error);

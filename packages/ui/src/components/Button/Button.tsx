@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 type ButtonProps = React.ComponentProps<typeof BaseButton> & {
   href?: string;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline';
   size?: 'sm' | 'md';
 };
 
@@ -15,7 +15,8 @@ export const Button = ({ href, variant = 'primary', size = 'md', ...props }: But
   const variants = {
     primary: "bg-primary text-on-primary hover:opacity-90",
     secondary: "bg-secondary-container text-on-secondary-container hover:opacity-80",
-    danger: "bg-error text-on-error hover:opacity-90"
+    danger: "bg-error text-on-error hover:opacity-90",
+    outline: "bg-transparent text-on-surface-container hover:bg-secondary hover:text-on-secondary transition-colors border border-outline"
   };
 
   const sizes = {

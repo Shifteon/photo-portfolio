@@ -1,4 +1,4 @@
-import { PhotoSchema } from './photo';
+import { PhotoSchema, PhotoDbSchema, PhotoTransformer } from './photo';
 import { z } from 'zod';
 
 // export interface Collection {
@@ -9,13 +9,29 @@ import { z } from 'zod';
 //   photos?: Photo[];
 // }
 
+export const CollectionDbSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+  cover_photo: PhotoDbSchema.nullable(),
+  order: z.number(),
+  photos: PhotoDbSchema.array().nullable().optional(),
+});
+
 export const CollectionSchema = z.object({
   name: z.string(),
   slug: z.string(),
   coverPhoto: PhotoSchema.nullable(),
   order: z.number(),
-  photos: PhotoSchema.array().nullable(),
+  photos: PhotoSchema.array().nullable().optional(),
 });
+
+export const CollectionTransformer = CollectionDbSchema.transform((collection) => ({
+  name: collection.name,
+  slug: collection.slug,
+  coverPhoto: collection.cover_photo ? PhotoTransformer.parse(collection.cover_photo) : null,
+  order: collection.order,
+  photos: collection.photos ? PhotoTransformer.array().parse(collection.photos) : [],
+}));
 
 export const CollectionFormSchema = z.object({
   name: z.string().min(1, "Name is required"),

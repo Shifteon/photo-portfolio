@@ -20,6 +20,7 @@ export default async function getPhotoCollection(req: NextRequest) {
         cover_photo:cover_photo_id (
           title,
           storage_path,
+          thumbnail_path,
           width,
           height,
           aspect_ratio
@@ -27,6 +28,7 @@ export default async function getPhotoCollection(req: NextRequest) {
         photos ( 
           title,
           storage_path,
+          thumbnail_path,
           width,
           height,
           aspect_ratio
