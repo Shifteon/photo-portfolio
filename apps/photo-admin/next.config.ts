@@ -4,14 +4,14 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb",
+      bodySizeLimit: "50mb",
     },
   },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'photosbybenwyatt.com',
+        hostname: 'assets.photosbybenwyatt.com',
         port: '',
         pathname: '/**',
         search: '',

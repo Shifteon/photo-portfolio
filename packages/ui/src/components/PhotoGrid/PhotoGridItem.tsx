@@ -20,10 +20,10 @@ export function PhotoGridItem({
     <div
       className={`break-inside-avoid relative mb-4 ${onClick ? "cursor-pointer" : ""
         } ${className}`}
-      onClick={() => onClick?.(photo)}
+      {...(onClick ? { onClick: () => onClick(photo) } : {})}
     >
       <div
-        className={`relative rounded-lg overflow-hidden ${selected ? "ring-4 ring-primary" : ""
+        className={`relative overflow-hidden ${selected ? "ring-4 ring-primary" : ""
           }`}
       >
         <Image

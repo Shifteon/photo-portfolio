@@ -1,6 +1,6 @@
-import { CollectionForm, CollectionSchema } from "@portfolio/types";
+import { CollectionForm } from "@portfolio/types";
 import { getSupabaseClient } from "../utils/getSupabaseClient";
-import { NextResponse } from "next/server";
+import { addPhotosToCollection } from "../utils/addPhotosToCollection";
 
 export async function updateCollection(slug: string, collection: CollectionForm) {
   const supabase = getSupabaseClient();
@@ -12,10 +12,6 @@ export async function updateCollection(slug: string, collection: CollectionForm)
       slug: collection.slug,
       cover_photo_id: collection.coverPhotoId,
       order: collection.order,
-      // photos are updated via a separate relation update or procedure usually, 
-      // but for now let's assume we maintain the relationship if the schema supports it directly 
-      // or we might need to handle the join table. 
-      // Checking createCollection logic would be good, but for typical update:
     })
     .eq("slug", slug)
     .select()
@@ -26,9 +22,14 @@ export async function updateCollection(slug: string, collection: CollectionForm)
     throw new Error(error.message);
   }
 
-  // If we need to update photo relationships (photo_collections table or similar)
-  // We should check how createCollection handles it.
-  // For now assuming the basic update.
+  // There might be photos to update or add
+  if (collection.photoIds && collection.photoIds.length > 0) {
+    const updatedPhotos = await addPhotosToCollection(slug, collection.photoIds);
+    if (updatedPhotos.error) {
+      console.error("Error updating photos:", updatedPhotos.error);
+      throw new Error("Error updating photos");
+    }
+  }
 
   return data;
 }

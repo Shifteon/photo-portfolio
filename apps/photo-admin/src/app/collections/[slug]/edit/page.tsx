@@ -3,6 +3,7 @@ import { updateCollection } from "@portfolio/api";
 import { Photo, Collection, CollectionFormSchema } from "@portfolio/types";
 import CollectionForm from "../../_components/CollectionForm";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 // Define strict ActionState to match useActionState expectation
 interface ActionState {
@@ -53,14 +54,17 @@ export default async function EditCollectionPage({ params }: PageProps) {
 
     try {
       await updateCollection(collection!.slug, validatedFields.data); // Use original slug to identify
+      revalidatePath('/collections');
+      return {
+        success: true,
+        message: 'Collection updated successfully',
+      };
     } catch (error) {
       return {
         success: false,
         message: 'Failed to update collection',
       };
     }
-
-    redirect('/collections');
   }
 
   return (

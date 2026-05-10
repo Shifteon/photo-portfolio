@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseClient } from '../utils/getSupabaseClient';
-import { Collection, CollectionSchema, CollectionTransformer } from '@portfolio/types';
+import getCollectionFromDb from '../db/getCollectionFromDb';
 
 export default async function getCollection(collectionSlug: string) {
   try {
@@ -8,51 +7,11 @@ export default async function getCollection(collectionSlug: string) {
       return NextResponse.json({ error: 'Collection slug is required' }, { status: 400 });
     }
 
-    const supabase = getSupabaseClient();
-    const { data: collectionData, error } = await supabase.from('collections') // Start the query on the main collection table
-      .select(`
-        name,
-        slug,
-        order,
-        cover_photo:cover_photo_id (
-          id,
-          title,
-          storage_path,
-          thumbnail_path,
-          width,
-          height,
-          aspect_ratio
-        ),
-        photo_collections ( 
-          photo_order,
-          photo:photos (
-            id,
-            title,
-            storage_path,
-            thumbnail_path,
-            width,
-            height,
-            aspect_ratio
-          )
-        )
-      `)
-      .eq('slug', collectionSlug) // Filter by collection slug/ID
-      .order('photo_order', { // Assumes a 'photo_order' column exists in the junction table/photos table
-        referencedTable: 'photo_collections', // Specify which table to order
-        ascending: true
-      })
-      .single();
+    const collection = await getCollectionFromDb(collectionSlug);
 
-    if (error) {
-      console.error(error);
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-    }
-
-    if (!collectionData) {
+    if (!collection) {
       return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
     }
-
-    const collection: Collection = CollectionTransformer.parse(collectionData);
 
     return NextResponse.json(collection);
   } catch (error) {
