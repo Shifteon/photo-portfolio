@@ -27,7 +27,7 @@ export function PhotoGridItem({
           }`}
       >
         <Image
-          src={photo.thumbnailPath}
+          src={photo.storagePath}
           alt={photo.title}
           width={photo.width || 800} // fallback width if null
           height={photo.height || 600} // fallback height if null

@@ -1,6 +1,5 @@
 import { getCollection } from "@portfolio/api";
 import { PhotoGrid } from "@portfolio/ui";
-import { Header } from "../components/Header";
 import { Collection, Photo } from "@portfolio/types";
 
 export const revalidate = 60; // Revalidate every minute
@@ -33,19 +32,26 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-background text-on-background flex flex-col">
-      <Header />
+      <header>
+        <div className="border-b border-on-surface-variant">
+          <h1 className="text-4xl md:text-6xl p-1 pb-0">
+            Benjamin Wyatt
+            <span className="text-2xl text-on-surface-variant ml-1"> Photography</span>
+          </h1>
+        </div>
+      </header>
 
-      <main className="flex-1 flex flex-col items-center w-full px-4 py-8 md:py-12">
-        <div className="w-full max-w-[1600px]">
+      <main className="flex-1 flex flex-col items-center w-full">
+        <div className="w-full max-w-[1600px] p-2">
           {error ? (
             <div className="text-center py-20 text-error">
-              <p>{error}</p>
+              <p>Error fetching photos</p>
             </div>
           ) : photos.length > 0 ? (
             <PhotoGrid photos={photos} targetColumns={3} />
           ) : (
             <div className="text-center py-20 text-on-surface-variant">
-              <p className="text-lg">No photos found in the Home collection.</p>
+              <p className="text-lg">No photos found.</p>
             </div>
           )}
         </div>
